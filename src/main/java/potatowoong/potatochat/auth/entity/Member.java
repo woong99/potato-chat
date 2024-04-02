@@ -3,6 +3,8 @@ package potatowoong.potatochat.auth.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
@@ -17,6 +19,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import potatowoong.potatochat.auth.dto.request.MemberSignUpReqDto;
+import potatowoong.potatochat.auth.enums.Role;
 
 @Entity
 @Table(name = "member")
@@ -40,6 +43,11 @@ public class Member implements Persistable<String> {
     @Comment("닉네임")
     private String nickname;
 
+    @Column(name = "role", nullable = false)
+    @Comment("권한")
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
     @Comment("생성일")
@@ -50,11 +58,12 @@ public class Member implements Persistable<String> {
     @Comment("수정일")
     private LocalDateTime updatedAt;
 
-    public static Member toEntity(MemberSignUpReqDto dto) {
+    public static Member toEntity(MemberSignUpReqDto dto, Role role) {
         return Member.builder()
             .userId(dto.getUserId())
             .password(dto.getPassword())
             .nickname(dto.getNickname())
+            .role(role)
             .build();
     }
 

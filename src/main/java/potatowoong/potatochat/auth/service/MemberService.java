@@ -5,6 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import potatowoong.potatochat.auth.dto.request.MemberSignUpReqDto;
 import potatowoong.potatochat.auth.entity.Member;
+import potatowoong.potatochat.auth.enums.Role;
 import potatowoong.potatochat.auth.repository.MemberRepository;
 import potatowoong.potatochat.exception.CustomException;
 import potatowoong.potatochat.exception.ErrorCode;
@@ -37,6 +38,7 @@ public class MemberService {
         }
 
         dto.setPassword(passwordEncoder.encode(dto.getPassword()));
-        memberRepository.save(Member.toEntity(dto));
+
+        memberRepository.save(Member.toEntity(dto, Role.ROLE_USER));
     }
 }
