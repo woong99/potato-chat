@@ -1,0 +1,16 @@
+spring:
+    application:
+        name: potato-chat
+    datasource:
+        url: jdbc:mariadb://localhost:3306/potato_chat?useSSL=false&serverTimezone=UTC
+        username: root
+        password: Jhan562!
+        driver-class-name: org.mariadb.jdbc.Driver
+    jpa:
+        hibernate:
+            ddl-auto: update
+        properties:
+            hibernate:
+                show_sql: true
+                format_sql: true
+                highlight_sql: true
