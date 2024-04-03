@@ -1,18 +1,23 @@
 package potatowoong.potatochat.auth.controller;
 
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import potatowoong.potatochat.auth.dto.request.LoginReqDto;
 import potatowoong.potatochat.auth.dto.request.MemberSignUpReqDto;
+import potatowoong.potatochat.auth.dto.response.MemberResDto;
 import potatowoong.potatochat.auth.service.MemberService;
 import potatowoong.potatochat.jwt.component.JwtTokenProvider;
 import potatowoong.potatochat.jwt.dto.AccessTokenDto;
@@ -52,5 +57,13 @@ public class MemberController {
         final AccessTokenDto accessTokenDto = tokenProvider.createToken(authentication);
 
         return ResponseEntity.ok(accessTokenDto);
+    }
+
+    /**
+     * 사용자 목록 조회 API
+     */
+    @GetMapping("/list")
+    public ResponseEntity<List<MemberResDto>> memberList(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(memberService.getMembers(user.getUsername()));
     }
 }

@@ -1,9 +1,12 @@
 package potatowoong.potatochat.auth.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import potatowoong.potatochat.auth.dto.request.MemberSignUpReqDto;
+import potatowoong.potatochat.auth.dto.response.MemberResDto;
 import potatowoong.potatochat.auth.entity.Member;
 import potatowoong.potatochat.auth.enums.Role;
 import potatowoong.potatochat.auth.repository.MemberRepository;
@@ -40,5 +43,12 @@ public class MemberService {
         dto.setPassword(passwordEncoder.encode(dto.getPassword()));
 
         memberRepository.save(Member.toEntity(dto, Role.ROLE_USER));
+    }
+
+    public List<MemberResDto> getMembers(final String userId) {
+        return memberRepository.findAll().stream()
+            .filter(d -> StringUtils.hasText(d.getId()) && !d.getId().equals(userId))
+            .map(MemberResDto::toDto)
+            .toList();
     }
 }
