@@ -1,11 +1,17 @@
 package potatowoong.potatochat.auth.dto.response;
 
 import lombok.Builder;
+import lombok.Getter;
 import potatowoong.potatochat.auth.entity.Member;
 
+@Getter
 @Builder
-public record MemberResDto(String userId, String nickname) {
+public class MemberResDto {
 
+    private String userId;
+
+    private String nickname;
+    
     public static MemberResDto toDto(Member member) {
         return MemberResDto.builder()
             .userId(member.getUserId())

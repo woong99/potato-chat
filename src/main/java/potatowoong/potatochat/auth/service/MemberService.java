@@ -51,4 +51,9 @@ public class MemberService {
             .map(MemberResDto::toDto)
             .toList();
     }
+
+    public MemberResDto getMember(final String userId) {
+        return MemberResDto.toDto(memberRepository.findById(userId)
+            .orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST)));
+    }
 }

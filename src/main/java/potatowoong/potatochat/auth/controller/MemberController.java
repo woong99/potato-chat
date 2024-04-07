@@ -66,4 +66,12 @@ public class MemberController {
     public ResponseEntity<List<MemberResDto>> memberList(@AuthenticationPrincipal User user) {
         return ResponseEntity.ok(memberService.getMembers(user.getUsername()));
     }
+
+    /**
+     * 사용자 정보 조회 API
+     */
+    @GetMapping("/me")
+    public ResponseEntity<MemberResDto> memberInfo(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(memberService.getMember(user.getUsername()));
+    }
 }
