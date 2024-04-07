@@ -26,7 +26,8 @@ public class SecurityConfig {
 
     private static final String[] WHITE_LIST = {
         "/api/member/sign-up",
-        "/api/member/login"
+        "/api/member/login",
+        "/ws/**"
     };
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
