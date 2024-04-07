@@ -9,11 +9,6 @@ spring:
     jpa:
         hibernate:
             ddl-auto: update
-        properties:
-            hibernate:
-                show_sql: true
-                format_sql: true
-                highlight_sql: true
 jwt:
     expiration_time: 86400000
     secret: 444aee4a0e959c4d0deb4a965e44cae39dcb2a73a89b32a402f86e9b009ff4a0d44e59685154afe4609ea98d85595cc248d109d7ae9087179d8bec1aacd9e1ad
