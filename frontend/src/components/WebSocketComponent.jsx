@@ -2,24 +2,31 @@ import {useEffect, useRef} from "react";
 import SockJS from "sockjs-client";
 import {Stomp} from "@stomp/stompjs";
 import {useCookies} from "react-cookie";
+import {useDispatch} from "react-redux";
+import {
+    clearStompClient,
+    setStompClient
+} from "../redux/reducer/stompClientSlice";
 
 const WebSocketComponent = () => {
-    const stompClient = useRef(null);
+    const dispatch = useDispatch();
+    const stompClientRef = useRef(null);
     const [cookies] = useCookies(['accessToken']);
 
     useEffect(() => {
         const socket = new SockJS('http://localhost:8080/ws');
-        stompClient.current = Stomp.over(socket);
-        stompClient.current.connect({
+        stompClientRef.current = Stomp.over(socket);
+        stompClientRef.current.connect({
             Authorization: `Bearer ${cookies['accessToken']}`
         }, (frame) => {
             console.log("Connected: " + frame);
-
+            dispatch(setStompClient(stompClientRef.current))
         });
 
         return () => {
-            if (stompClient.current) {
-                stompClient.current.disconnect();
+            if (stompClientRef.current) {
+                stompClientRef.current.disconnect();
+                dispatch(clearStompClient());
             }
         }
     }, []);

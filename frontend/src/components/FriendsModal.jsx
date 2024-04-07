@@ -2,9 +2,25 @@ import React, {Fragment, useEffect, useState} from 'react';
 import {Dialog, Transition} from "@headlessui/react";
 import {IoPerson} from "react-icons/io5";
 import styled from "styled-components";
+import axios from "axios";
+import {useCookies} from "react-cookie";
+import {useDispatch, useSelector} from "react-redux";
+import {selectStompClient} from "../redux/reducer/stompClientSlice";
+import {setReceiverId} from '../redux/reducer/chatSlice';
 
-const FriendListDialog = ({isOpen, setIsOpen, members, setMembers}) => {
+const FriendListDialog = ({
+    isOpen,
+    setIsOpen,
+    members,
+    setMembers,
+    setChatRoomId,
+    fetchChatList
+}) => {
+    const dispatch = useDispatch();
     const [searchWrd, setSearchWrd] = useState(''); // 검색어
+    const [selectedMembers, setSelectedMembers] = useState([]); // 선택된 사용자 목록
+    const [cookies] = useCookies(['accessToken']);
+    const stompClient = useSelector(selectStompClient);
 
     // 검색어에 따라 사용자 목록 필터링
     useEffect(() => {
@@ -13,6 +29,40 @@ const FriendListDialog = ({isOpen, setIsOpen, members, setMembers}) => {
         })
         setMembers([...members]);
     }, [searchWrd]);
+
+    // 대화 상대 선택 후 대화 시작
+    const startChat = async () => {
+        if (selectedMembers.length === 0) {
+            alert("대화 상대를 선택해주세요.");
+            return;
+        }
+
+        if (selectedMembers.length === 1) {
+            try {
+                const res = await axios.get(
+                    `http://localhost:8080/api/chat-room/personal/chat-room-id/${selectedMembers[0]}`,
+                    {headers: {Authorization: `Bearer ${cookies['accessToken']}`}});
+                setChatRoomId(res.data);
+
+                // ReceiverId 설정
+                dispatch(setReceiverId(selectedMembers[0]));
+
+                // 채팅 내역 조회
+                fetchChatList(res.data);
+            } catch (err) {
+                console.error(err);
+                alert("채팅방 생성에 실패했습니다.")
+            }
+        }
+        setIsOpen(false);
+        setSelectedMembers([]);
+    }
+
+    // 대화 상대 선택 취소
+    const closeDialog = () => {
+        setIsOpen(false);
+        setSelectedMembers([]);
+    }
 
     return (
         <Transition appear show={isOpen} as={Fragment}>
@@ -68,7 +118,8 @@ const FriendListDialog = ({isOpen, setIsOpen, members, setMembers}) => {
                                     {members?.map((member) => (
                                         member.visible &&
                                         <div
-                                            className="flex gap-x-3 justify-between mt-3 ps-2 pe-4">
+                                            className="flex gap-x-3 justify-between mt-3 ps-2 pe-4"
+                                            key={member.userId}>
                                             <div
                                                 className="text-sm leading-6 flex items-center">
                                                 <div
@@ -88,6 +139,18 @@ const FriendListDialog = ({isOpen, setIsOpen, members, setMembers}) => {
                                                     name="comments"
                                                     type="checkbox"
                                                     value={member.userId}
+                                                    onChange={(e) => {
+                                                        if (e.target.checked) {
+                                                            setSelectedMembers(
+                                                                [...selectedMembers,
+                                                                    e.target.value])
+                                                        } else {
+                                                            setSelectedMembers(
+                                                                selectedMembers.filter(
+                                                                    (id) => id
+                                                                        !== e.target.value))
+                                                        }
+                                                    }}
                                                 />
                                             </div>
                                         </div>
@@ -99,13 +162,14 @@ const FriendListDialog = ({isOpen, setIsOpen, members, setMembers}) => {
                                     <button
                                         type="button"
                                         className="inline-flex justify-center rounded-md border border-transparent bg-gray-300 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 me-3"
-                                        onClick={() => setIsOpen(false)}
+                                        onClick={closeDialog}
                                     >
                                         취소
                                     </button>
                                     <button
                                         type="button"
                                         className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                                        onClick={startChat}
                                     >
                                         확인
                                     </button>

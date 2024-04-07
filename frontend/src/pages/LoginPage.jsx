@@ -6,7 +6,7 @@ import {useNavigate} from "react-router-dom";
 const LoginPage = () => {
     const [userId, setUserId] = useState(''); // 아이디
     const [password, setPassword] = useState(''); // 비밀번호
-    const [setCookie] = useCookies(['accessToken']); // accessToken
+    const [cookies, setCookie] = useCookies(['accessToken']); // accessToken
     const navigate = useNavigate();
 
     const login = async () => {
@@ -20,7 +20,7 @@ const LoginPage = () => {
                 {path: '/', expires: new Date(res.data.expireDate)});
             navigate("/");
         } catch (error) {
-            if (error.response.status === 401) {
+            if (error?.response?.status === 401) {
                 alert("아이디 혹은 비밀번호를 확인해주세요.");
             } else {
                 alert("서버 오류가 발생했습니다.");
