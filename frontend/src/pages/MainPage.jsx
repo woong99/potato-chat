@@ -13,9 +13,11 @@ import {fetchUserInfo, selectUser} from "../redux/reducer/userSlice";
 import WebSocketComponent from "../components/WebSocketComponent";
 import {
     addMessage,
+    addSubscribe,
     clearMessageList,
     selectMessageList,
     selectReceiverId,
+    selectSubscribeList,
     setMessageList,
     setReceiverId
 } from "../redux/reducer/chatSlice";
@@ -33,6 +35,7 @@ const MainPage = () => {
     const userInfo = useSelector(selectUser); // 사용자 정보
     const receiverId = useSelector(selectReceiverId); // 수신자 ID
     const messageList = useSelector(selectMessageList); // 메시지 목록
+    const subscribeList = useSelector(selectSubscribeList); // 구독 목록
 
     useEffect(() => {
         if (!userInfo) {
@@ -130,12 +133,19 @@ const MainPage = () => {
     // 채팅 내역 조회
     const fetchChatList = async (chatRoomId) => {
         try {
+            // 저장된 채팅 내역 초기화
             dispatch(clearMessageList())
-            stompClient.subscribe(`/topic/${chatRoomId}`, (res) => {
-                const message = JSON.parse(res.body);
-                dispatch(addMessage(message));
-            });
 
+            // 채팅방 구독
+            if (!subscribeList.includes(chatRoomId)) {
+                stompClient.subscribe(`/topic/${chatRoomId}`, (res) => {
+                    const message = JSON.parse(res.body);
+                    dispatch(addMessage(message));
+                });
+                dispatch(addSubscribe(chatRoomId));
+            }
+
+            // 채팅 내역 조회
             const res = await axios.get(
                 `http://localhost:8080/api/chat/list/${chatRoomId}`, {
                     headers: {Authorization: `Bearer ${cookies['accessToken']}`}
