@@ -26,6 +26,7 @@ const MainPage = () => {
     const [cookies] = useCookies(['accessToken']); // accessToken
     const [isFriendsModalOpen, setIsFriendsModalOpen] = useState(false); // 친구 목록 모달 on/off
     const [nowChatRoomId, setNowChatRoomId] = useState(''); // 현재 채팅방 ID
+    const [nowChatRoomName, setNowChatRoomName] = useState(''); // 현재 채팅방 이름
     const [message, setMessage] = useState(''); // 메시지
     const [chatRoomList, setChatRoomList] = useState([]); // 채팅방 목록
     const stompClient = useSelector(selectStompClient);
@@ -117,8 +118,9 @@ const MainPage = () => {
     }
 
     // 채팅방 클릭 시 채팅 내역 조회
-    const onClickChatRoom = (chatRoomId, receiverId) => {
+    const onClickChatRoom = (chatRoomId, receiverId, chatRoomName) => {
         setNowChatRoomId(chatRoomId);
+        setNowChatRoomName(chatRoomName);
         dispatch(setReceiverId(receiverId));
         fetchChatList(chatRoomId).then(res => {
             dispatch(setMessageList(res));
@@ -178,10 +180,12 @@ const MainPage = () => {
                         <div className="h-4/6">
                             {chatRoomList?.map(chatRoom => (
                                 <div key={chatRoom.chatRoomId}
-                                     className="flex flex-row py-4 px-2 justify-center items-center border-b-2"
+                                     className={`flex flex-row py-4 px-2 justify-center items-center border-b-2 ${nowChatRoomId
+                                     === chatRoom.chatRoomId && 'bg-blue-100'}`}
                                      onClick={() => onClickChatRoom(
                                          chatRoom.chatRoomId,
-                                         chatRoom.receiverId)}>
+                                         chatRoom.receiverId,
+                                         chatRoom.name)}>
                                     <div
                                         className="bg-amber-300 rounded h-8 p-1 me-6">
                                         <IoPerson size={24}
@@ -200,8 +204,20 @@ const MainPage = () => {
                     </div>
                     {/* end chat list */}
                     {/* message */}
-                    <div className="w-full px-5 flex flex-col justify-between">
-                        <div className="flex flex-col mt-5 overflow-y-scroll"
+                    <div
+                        className="w-full px-5 flex flex-col justify-between">
+                        {nowChatRoomName &&
+                            <div
+                                className="mt-2 border-b text-2xl pb-2 flex items-center">
+                                <div
+                                    className="bg-amber-300 rounded h-8 p-1 me-2">
+                                    <IoPerson size={24}
+                                              color={"#ffffff"}/>
+                                </div>
+                                {nowChatRoomName}
+                            </div>
+                        }
+                        <div className="flex flex-col overflow-y-scroll"
                              style={{height: '80%'}}>
                             {messageList?.map((message) => (
                                 message.member.userId === userInfo.userId ?
